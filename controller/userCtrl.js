@@ -1,5 +1,6 @@
 const User = require("../models/userModel");
 const asyncHandler = require("express-async-handler");
+const { generateToken } = require("../config/jwtToken");
 
 
 // Create a User ----------------------------------------------
@@ -28,4 +29,23 @@ const createUser = asyncHandler (async (req, res) => {
     }
   });
 
-  module.exports = { createUser }
+// Login a user
+const loginUserCtrl = asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
+    // check if user exists or not
+    const findUser = await User.findOne({ email });
+    if (findUser && (await findUser.isPasswordMatched(password))) {
+      
+      res.json({
+        _id: findUser?._id,
+        username: findUser?.username,
+        email: findUser?.email,
+        token: generateToken(findUser?._id),
+      });
+    } else {
+      throw new Error("Invalid Credentials");
+    }
+  });
+  
+
+  module.exports = { createUser, loginUserCtrl }
