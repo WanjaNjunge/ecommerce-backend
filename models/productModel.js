@@ -10,7 +10,6 @@ var productSchema = new mongoose.Schema(
       },
       slug: {
         type: String,
-        required: true,
         unique: true,
         lowercase: true,
       },
@@ -23,11 +22,12 @@ var productSchema = new mongoose.Schema(
         required: true,
       },
       category: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Product"
+        type: String,
+        required: true,
       },
       brand: {
         type: String,
+        required: true,
       },
       quantity: {
         type: Number,

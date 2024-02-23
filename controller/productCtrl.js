@@ -1,13 +1,14 @@
 const Product  = require('../models/productModel');
 const asyncHandler =  require('express-async-handler');
+const slugify = require("slugify");
 // const validateMongoDbId = require("../utils/validateMongodbId");
 
 // Create  a new product
 const createProduct = asyncHandler(async (req, res) => {
     try {
-    //   if (req.body.title) {
-    //     req.body.slug = slugify(req.body.title);
-    //   }
+      if (req.body.title) {
+        req.body.slug = slugify(req.body.title);
+      }
       const newProduct = await Product.create(req.body);
       res.json(newProduct);
     } catch (error) {
@@ -75,4 +76,46 @@ const getAllProducts = asyncHandler(async (req, res) => {
       throw new Error(error);
     }
   });
-module.exports = { createProduct, getProduct, getAllProducts }
+
+
+  // Update a product
+  const updateProduct = asyncHandler(async (req, res) => {
+    const {id} = req.params;
+    // validateMongoDbId(id);
+    try {
+      if (req.body.title) {
+        req.body.slug = slugify(req.body.title);
+      }
+      const updateProduct = await Product.findByIdAndUpdate(id, req.body, {
+        new: true,
+      });
+      res.json(updateProduct);
+      console.log({id})
+    } catch (error) {
+      throw new Error(error);
+    }
+  });
+
+// delete a product
+const deleteProduct = asyncHandler(async (req, res) => {
+    const {id} = req.params;
+    // validateMongoDbId(id);
+    try {
+      if (req.body.title) {
+        req.body.slug = slugify(req.body.title);
+      }
+      const deleteProduct = await Product.findByIdAndDelete(id, req.body, {
+        new: true,
+      });
+      res.json({
+        message: "Product deleted successfully",
+        data: deleteProduct
+      });
+      console.log({id})
+    } catch (error) {
+      throw new Error(error);
+    }
+  });
+
+
+module.exports = { createProduct, getProduct, getAllProducts, updateProduct, deleteProduct }
