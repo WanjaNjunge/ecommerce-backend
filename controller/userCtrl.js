@@ -4,7 +4,8 @@ const { generateToken } = require("../config/jwtToken");
 const validateMongoDbId = require("../utils/validateMongodbId");
 const { generateRefreshToken } = require("../config/refreshToken");
 const jwt = require("jsonwebtoken");
-const sendEmail = require("./emailCtrl")
+const sendEmail = require("./emailCtrl");
+const crypto = require("crypto");
 
 
 // Create a User ----------------------------------------------
@@ -274,7 +275,10 @@ const updatePassword = asyncHandler(async (req, res) => {
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
     await user.save();
-    res.json(user);
+    res.json({
+      message: "Password successfully reset! You can now login.",
+      data: user
+    });
   });
   
 
