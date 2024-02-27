@@ -2,6 +2,7 @@ const User = require("../models/userModel");
 const Product = require("../models/productModel");
 const Cart = require("../models/cartModel");
 const Coupon = require("../models/couponModel");
+const Order = require("../models/orderModel");
 const asyncHandler = require("express-async-handler");
 const { generateToken } = require("../config/jwtToken");
 const validateMongoDbId = require("../utils/validateMongodbId");
@@ -9,6 +10,7 @@ const { generateRefreshToken } = require("../config/refreshToken");
 const jwt = require("jsonwebtoken");
 const sendEmail = require("./emailCtrl");
 const crypto = require("crypto");
+const uniqid = require("uniqid");
 
 
 // Create a User ----------------------------------------------
@@ -445,11 +447,11 @@ const saveAddress = asyncHandler(async (req, res, next) => {
       if (!COD) throw new Error("Create cash order failed");
       const user = await User.findById(_id);
       let userCart = await Cart.findOne({ orderby: user._id });
-      let finalAmout = 0;
+      let finalAmount = 0;
       if (couponApplied && userCart.totalAfterDiscount) {
-        finalAmout = userCart.totalAfterDiscount;
+        finalAmount = userCart.totalAfterDiscount;
       } else {
-        finalAmout = userCart.cartTotal;
+        finalAmount = userCart.cartTotal;
       }
   
       let newOrder = await new Order({
@@ -457,10 +459,10 @@ const saveAddress = asyncHandler(async (req, res, next) => {
         paymentIntent: {
           id: uniqid(),
           method: "COD",
-          amount: finalAmout,
+          amount: finalAmount,
           status: "Cash on Delivery",
           created: Date.now(),
-          currency: "usd",
+          currency: "ksh",
         },
         orderby: user._id,
         orderStatus: "Cash on Delivery",
@@ -539,4 +541,4 @@ const saveAddress = asyncHandler(async (req, res, next) => {
     }
   });
 
-  module.exports = { createUser, loginUser, getAllUsers, getUser, deleteUser, updateUser, blockUser, unblockUser, handleRefreshToken, logout, updatePassword, forgotPasswordToken, resetPassword, loginAdmin, getWishlist, saveAddress, userCart, getUserCart, emptyCart, applyCoupon, }
+  module.exports = { createUser, loginUser, getAllUsers, getUser, deleteUser, updateUser, blockUser, unblockUser, handleRefreshToken, logout, updatePassword, forgotPasswordToken, resetPassword, loginAdmin, getWishlist, saveAddress, userCart, getUserCart, emptyCart, applyCoupon, createOrder, }
