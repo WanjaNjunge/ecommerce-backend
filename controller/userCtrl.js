@@ -1,4 +1,7 @@
 const User = require("../models/userModel");
+const Product = require("../models/productModel");
+const Cart = require("../models/cartModel");
+const Coupon = require("../models/couponModel");
 const asyncHandler = require("express-async-handler");
 const { generateToken } = require("../config/jwtToken");
 const validateMongoDbId = require("../utils/validateMongodbId");
@@ -363,7 +366,6 @@ const saveAddress = asyncHandler(async (req, res, next) => {
         let object = {};
         object.product = cart[i]._id;
         object.count = cart[i].count;
-        object.color = cart[i].color;
         let getPrice = await Product.findById(cart[i]._id).select("price").exec();
         object.price = getPrice.price;
         products.push(object);
@@ -401,8 +403,11 @@ const saveAddress = asyncHandler(async (req, res, next) => {
     validateMongoDbId(_id);
     try {
       const user = await User.findOne({ _id });
-      const cart = await Cart.findOneAndRemove({ orderby: user._id });
-      res.json(cart);
+      const cart = await Cart.findOneAndDelete({ orderby: user._id });
+      res.json({
+        message: "The cart has been emptied",
+        data: cart,
+      });
     } catch (error) {
       throw new Error(error);
     }
@@ -534,4 +539,4 @@ const saveAddress = asyncHandler(async (req, res, next) => {
     }
   });
 
-  module.exports = { createUser, loginUser, getAllUsers, getUser, deleteUser, updateUser, blockUser, unblockUser, handleRefreshToken, logout, updatePassword, forgotPasswordToken, resetPassword, loginAdmin, getWishlist, saveAddress }
+  module.exports = { createUser, loginUser, getAllUsers, getUser, deleteUser, updateUser, blockUser, unblockUser, handleRefreshToken, logout, updatePassword, forgotPasswordToken, resetPassword, loginAdmin, getWishlist, saveAddress, userCart, getUserCart, emptyCart, applyCoupon, }
