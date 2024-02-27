@@ -39,10 +39,10 @@ var productSchema = new mongoose.Schema(
         select: false,
       },
       images: [
-        {
-          public_id: String,
-          url: String,
-        },
+        // {
+        //   public_id: String,
+        //   url: String,
+        // },
       ],
       ratings: [
         {
