@@ -3,7 +3,7 @@ const User = require("../models/userModel");
 const asyncHandler =  require('express-async-handler');
 const slugify = require("slugify");
 const validateMongoDbId = require("../utils/validateMongodbId");
-const cloudinaryUploadImg = require("../utils/cloudinary");
+const { cloudinaryUploadImg, cloudinaryDeleteImg} = require("../utils/cloudinary");
 const fs = require("fs");
 
 // Create  a new product
@@ -209,10 +209,7 @@ const deleteProduct = asyncHandler(async (req, res) => {
     }
   });
 
-const uploadImages = asyncHandler (async(req, res) => {
-  const { id } = req.params;
-  validateMongoDbId(id);
-  // const uploadImages = asyncHandler(async (req, res) => {
+  const uploadImages = asyncHandler(async (req, res) => {
     try {
       const uploader = (path) => cloudinaryUploadImg(path, "images");
       const urls = [];
@@ -220,20 +217,26 @@ const uploadImages = asyncHandler (async(req, res) => {
       for (const file of files) {
         const { path } = file;
         const newpath = await uploader(path);
-        // console.log(newpath);
+        console.log(newpath);
         urls.push(newpath);
         fs.unlinkSync(path);
       }
-      // const images = urls.map((file) => {
-      //   return file;
-      // });
-      const findProduct = await Product.findByIdAndUpdate(id, { images: urls.map((file) => {
+      const images = urls.map((file) => {
         return file;
-      }) }, { new: true });
-      res.json(findProduct);
+      });
+      res.json(images);
     } catch (error) {
       throw new Error(error);
     }
-  //});
-})
-module.exports = { createProduct, getProduct, getAllProducts, updateProduct, deleteProduct, addToWishlist, rating, uploadImages }
+  });
+  const deleteImages = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    try {
+      const deleted = cloudinaryDeleteImg(id, "images");
+      res.json({ message: "Deleted", data: deleted });
+    } catch (error) {
+      throw new Error(error);
+    }
+  });
+
+module.exports = { createProduct, getProduct, getAllProducts, updateProduct, deleteProduct, addToWishlist, rating, uploadImages, deleteImages }
