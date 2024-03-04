@@ -90,8 +90,7 @@ const loginAdmin = asyncHandler(async (req, res) => {
     });
     res.json({
       _id: findAdmin?._id,
-      firstname: findAdmin?.firstname,
-      lastname: findAdmin?.lastname,
+      username: findAdmin?.username,
       email: findAdmin?.email,
       mobile: findAdmin?.mobile,
       token: generateToken(findAdmin?._id),
