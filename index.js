@@ -21,7 +21,8 @@ dbConnect();
 
 
 app.use(cors({
-    origin: [process.env.BASE_URL, process.env.CLIENT_URL],
+    origin: process.env.CLIENT_URL,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   }));
 app.use(morgan('dev'));
 app.use(bodyParser.json());
