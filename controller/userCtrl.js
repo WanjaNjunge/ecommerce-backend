@@ -351,53 +351,66 @@ const saveAddress = asyncHandler(async (req, res, next) => {
 });
 
 
-  const userCart = asyncHandler(async (req, res) => {
-    const { cart } = req.body;
-    const { _id } = req.user;
-    validateMongoDbId(_id);
-    try {
-      let products = [];
-      const user = await User.findById(_id);
-      // check if user already have product in cart
-      const alreadyExistCart = await Cart.findOne({ orderby: user._id });
-      if (alreadyExistCart) {
-        alreadyExistCart.remove();
-      }
-      for (let i = 0; i < cart.length; i++) {
-        let object = {};
-        object.product = cart[i]._id;
-        object.count = cart[i].count;
-        let getPrice = await Product.findById(cart[i]._id).select("price").exec();
-        object.price = getPrice.price;
-        products.push(object);
-      }
-      let cartTotal = 0;
-      for (let i = 0; i < products.length; i++) {
-        cartTotal = cartTotal + products[i].price * products[i].count;
-      }
-      let newCart = await new Cart({
-        products,
-        cartTotal,
-        orderby: user?._id,
-      }).save();
-      res.json(newCart);
-    } catch (error) {
-      throw new Error(error);
-    }
-  });
-  
+const userCart = asyncHandler(async (req, res) => {
+  const { productId, quantity, price } = req.body;
+  const {_id} = req.user;
+  validateMongoDbId(_id);
+
+  try {
+    let newCart = await new Cart({
+      userId:  _id,
+      productId,
+      quantity,
+      price
+    }).save();
+    res.json(newCart);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
   const getUserCart = asyncHandler(async (req, res) => {
     const { _id } = req.user;
     validateMongoDbId(_id);
+  
     try {
-      const cart = await Cart.findOne({ orderby: _id }).populate(
-        "products.product"
+      const cart = await Cart.find({ userId: _id }).populate(
+        "productId"
       );
       res.json(cart);
     } catch (error) {
-      throw new Error(error);
+      res.status(500).json({ message: "Failed to get user's cart" });
     }
   });
+
+  const removeProductFromCart = asyncHandler(async (req, res)=>{
+    const { _id } = req.user;
+    const { cartItemId } = req.params
+    validateMongoDbId(_id);
+  
+    try {
+      const deleteProductFromCart = await Cart.deleteOne({ userId: _id, _id: cartItemId })
+      res.json(deleteProductFromCart);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get user's cart" });
+    }
+
+  });
+
+  const updateCartProductQuantity = asyncHandler(async (req, res)=>{
+    const { _id } = req.user;
+    const { cartItemId } = req.params;
+    const { newQuantity } = req.body;
+    validateMongoDbId(_id);
+  
+    try {
+      const cartItem = await Cart.findOneAndUpdate({ userId: _id, _id: cartItemId }, { quantity: newQuantity }, { new: true });
+      res.json(cartItem);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update cart item quantity" });
+    }
+});
+
   
   const emptyCart = asyncHandler(async (req, res) => {
     const { _id } = req.user;
@@ -540,4 +553,4 @@ const saveAddress = asyncHandler(async (req, res, next) => {
     }
   });
 
-  module.exports = { createUser, loginUser, getAllUsers, getUser, deleteUser, updateUser, blockUser, unblockUser, handleRefreshToken, logout, updatePassword, forgotPasswordToken, resetPassword, loginAdmin, getWishlist, saveAddress, userCart, getUserCart, emptyCart, applyCoupon, createOrder, getOrders, updateOrderStatus }
+  module.exports = { createUser, loginUser, getAllUsers, getUser, deleteUser, updateUser, blockUser, unblockUser, handleRefreshToken, logout, updatePassword, forgotPasswordToken, resetPassword, loginAdmin, getWishlist, saveAddress, userCart, getUserCart, emptyCart, applyCoupon, createOrder, getOrders, updateOrderStatus, removeProductFromCart, updateCartProductQuantity }

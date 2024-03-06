@@ -31,9 +31,15 @@ var productSchema = new mongoose.Schema(
       },
       quantity: {
         type: Number,
+        default: 1,
         required: true,
       },
       sold: {
+        type: Number,
+        default: 0,
+        select: false,
+      },
+      stock: {
         type: Number,
         default: 0,
         select: false,
@@ -53,7 +59,7 @@ var productSchema = new mongoose.Schema(
         },
       ],
       totalrating: {
-        type: String,
+        type: Number,
         default: 0,
       },
     },

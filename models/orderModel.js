@@ -3,32 +3,90 @@ const mongoose = require("mongoose"); // Erase if already required
 // Declare the Schema of the Mongo model
 var orderSchema = new mongoose.Schema(
   {
-    products: [
-      {
-        product: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Product",
-        },
-        count: Number,
-      },
-    ],
-    paymentIntent: {},
-    orderStatus: {
-      type: String,
-      default: "Not Processed",
-      enum: [
-        "Not Processed",
-        "Cash on Delivery",
-        "Processing",
-        "Dispatched",
-        "Cancelled",
-        "Delivered",
-      ],
-    },
-    orderby: {
+    user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      required:true
     },
+    billingInfo: {
+      firstname: {
+        type:String,
+        required:true
+      },
+      lastname: {
+        type:String,
+        required:true
+      },
+      county: {
+        type:String,
+        required:true
+      },
+      city: {
+        type:String,
+        required:true
+      },
+      address: {
+        type:String,
+        required:true
+      },
+      pincode: {
+        type:Number,
+        required:true
+      },
+      phonenumber: {
+        type:Number,
+        required:true
+      },
+      email: {
+        type:String,
+        required:true
+      },
+      other: {
+        type:String,
+        required:true
+      },
+    },
+    paymentInfo: {
+      mpesaOrderId: {
+        type:String,
+      },
+      mpesaPaymentId: {
+        type:String,
+      }
+    },
+    orderItems: [
+      {
+      product: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+        required:true
+      },
+      quantity:{
+        type: Number,
+        required:true
+      },
+      proce:{
+        type: Number,
+        required:true
+      }
+      }
+    ],
+    paidAt:{
+      type: Date,
+      default:Date.now(),
+    },
+    totalPrice:{
+      type: Number,
+      required: true
+    },
+    totalAfterPrice:{
+      type: Number,
+      required: true
+    },
+    orderStatus:{
+      type: String,
+      default: "Ordered"
+    }
   },
   {
     timestamps: true,
