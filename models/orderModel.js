@@ -43,7 +43,6 @@ var orderSchema = new mongoose.Schema(
       },
       other: {
         type:String,
-        required:true
       },
     },
     paymentInfo: {
@@ -65,7 +64,7 @@ var orderSchema = new mongoose.Schema(
         type: Number,
         required:true
       },
-      proce:{
+      price:{
         type: Number,
         required:true
       }
@@ -79,7 +78,7 @@ var orderSchema = new mongoose.Schema(
       type: Number,
       required: true
     },
-    totalAfterPrice:{
+    totalPriceAfterDiscount:{
       type: Number,
       required: true
     },
