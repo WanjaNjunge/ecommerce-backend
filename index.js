@@ -20,7 +20,9 @@ dbConnect();
 
 
 
-app.use(cors());
+app.use(cors({
+    origin: [process.env.BASE_URL, process.env.CLIENT_URL],
+  }));
 app.use(morgan('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
