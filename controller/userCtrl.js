@@ -413,12 +413,12 @@ const userCart = asyncHandler(async (req, res) => {
 
   
 const createOrder = asyncHandler(async (req, res) => {
-  const { billingInfo, orderItems, totalPrice, totalPriceAfterDiscount, paymentInfo } = req.body;
+  const { billingInfo, orderItems, totalPrice, totalPriceAfterDiscount } = req.body;
   const {_id} = req.user;
 
   try {
     const order = await  Order.create({
-      billingInfo, orderItems, totalPrice, totalPriceAfterDiscount, paymentInfo, user:_id
+      billingInfo, orderItems, totalPrice, totalPriceAfterDiscount, user:_id
     })
     res.json({
       order,
