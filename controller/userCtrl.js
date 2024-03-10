@@ -414,7 +414,7 @@ const userCart = asyncHandler(async (req, res) => {
   
 const createOrder = asyncHandler(async (req, res) => {
   const { billingInfo, orderItems, totalPrice, totalPriceAfterDiscount } = req.body;
-  const {_id} = req.user;
+  const { _id } = req.user;
 
   try {
     const order = await  Order.create({
@@ -423,6 +423,21 @@ const createOrder = asyncHandler(async (req, res) => {
     res.json({
       order,
       success: true
+    })
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+const getMyOrders = asyncHandler(async (req, res) => {
+  
+  const { _id } = req.user;
+
+  try {
+    const orders = await  Order.find({user:_id
+    }).populate("user").populate("orderItems.product")
+    res.json({
+      orders
     })
   } catch (error) {
     throw new Error(error);
@@ -570,4 +585,4 @@ const createOrder = asyncHandler(async (req, res) => {
   //   }
   // });
 
-  module.exports = { createUser, loginUser, getAllUsers, getUser, deleteUser, updateUser, blockUser, unblockUser, handleRefreshToken, logout, updatePassword, forgotPasswordToken, resetPassword, loginAdmin, getWishlist, saveAddress, userCart, getUserCart, createOrder, removeProductFromCart, updateCartProductQuantity }
+  module.exports = { createUser, loginUser, getAllUsers, getUser, deleteUser, updateUser, blockUser, unblockUser, handleRefreshToken, logout, updatePassword, forgotPasswordToken, resetPassword, loginAdmin, getWishlist, saveAddress, userCart, getUserCart, createOrder, removeProductFromCart, updateCartProductQuantity, getMyOrders }
