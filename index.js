@@ -21,9 +21,10 @@ dbConnect();
 
 
 app.use(cors({
-    origin: 'https://silicon-savannah.netlify.app',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
   }));
 app.use(morgan('dev'));
 app.use(bodyParser.json());

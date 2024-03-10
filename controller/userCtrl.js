@@ -15,29 +15,48 @@ const uniqid = require("uniqid");
 
 // Create a User ----------------------------------------------
 
-const createUser = asyncHandler (async (req, res) => {
-    /**
-     * TODO:Get the email from req.body
-     */
-    const email = req.body.email;
-    /**
-     * TODO:With the help of email find the user exists or not
-     */
-    const findUser = await User.findOne({ email: email });
-  
-    if (!findUser) {
-      /**
-       * TODO:if user not found user create a new user
-       */
-      const newUser = await User.create(req.body);
-      res.json(newUser);
-    } else {
-      /**
-       * TODO:if user found then thow an error: User already exists
-       */
-      throw new Error("User Already Exists");
-    }
+const createUser = asyncHandler(async (req, res) => {
+  const email = req.body.email;
+  const findUser = await User.findOne({ email: email });
+
+  if (findUser) throw new Error("User Already Exists"); 
+
+  try {
+    const code = Math.random().toString(36).substring(2, 8); // Generate a random code
+
+    const newUser = await User.create({ ...req.body, verificationCode: code });
+    console.log('sent code:  ',code);
+    const verificationUrl = `Hi, your registration code is: <strong>${code}</strong>. Please follow this link to complete registration. Input the code for verification. <a href='http://localhost:3000/verify'>Click Here</a>`
+
+    await sendEmail({
+      to: email,
+      subject: 'Registration Code',
+      text: `Your registration code is: ${code}`,
+      html: verificationUrl
+    });
+
+    res.json({ message: 'Verification code sent' });
+  } catch (error) {
+    throw new Error(error);
+  }
   });
+
+
+  // regisration code verification
+  const  verifyCode = asyncHandler(async (req,res)=>{
+    const { email, code } = req.body;
+    
+
+    const user = await User.findOne({ email: email });
+
+    if(!user){
+      throw new Error('Invalid Email Address');
+    }else if(user.verificationCode!==code){
+      throw new Error('Incorrect Verification Code')
+    } else {
+      res.json({ message: 'Verification successful' });
+    }
+  })
 
 // Login a user
 const loginUser = asyncHandler(async (req, res) => {
@@ -585,4 +604,4 @@ const getMyOrders = asyncHandler(async (req, res) => {
   //   }
   // });
 
-  module.exports = { createUser, loginUser, getAllUsers, getUser, deleteUser, updateUser, blockUser, unblockUser, handleRefreshToken, logout, updatePassword, forgotPasswordToken, resetPassword, loginAdmin, getWishlist, saveAddress, userCart, getUserCart, createOrder, removeProductFromCart, updateCartProductQuantity, getMyOrders }
+  module.exports = { createUser, loginUser, getAllUsers, getUser, deleteUser, updateUser, blockUser, unblockUser, handleRefreshToken, logout, updatePassword, forgotPasswordToken, resetPassword, loginAdmin, getWishlist, saveAddress, userCart, getUserCart, createOrder, removeProductFromCart, updateCartProductQuantity, getMyOrders, verifyCode }
