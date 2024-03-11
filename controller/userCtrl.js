@@ -1,3 +1,4 @@
+require('dotenv').config();
 const User = require("../models/userModel");
 const Product = require("../models/productModel");
 const Cart = require("../models/cartModel");
@@ -25,8 +26,14 @@ const createUser = asyncHandler(async (req, res) => {
     const code = Math.random().toString(36).substring(2, 8); // Generate a random code
 
     const newUser = await User.create({ ...req.body, verificationCode: code });
-    console.log('sent code:  ',code);
-    const verificationUrl = `Hi, your registration code is: <strong>${code}</strong>. Please follow this link to complete registration. Input the code for verification. <a href='http://localhost:3000/verify'>Click Here</a>`
+    
+    const verificationUrl = `
+    <p>Hi ${newUser.username},</p>
+    <p>Please use the following code to verify your sign up: <strong>${code}</strong>.</p>
+    <p>Please follow this link to input the code for verification: <a href='${process.env.BASE_URL}/verify'>Click Here</a></p>
+    <p>If you don't recognize this activity, please <a href='${process.env.BASE_URL}/forgot-password'>reset your password</a> immediately.</p>
+    `;
+
 
     await sendEmail({
       to: email,
