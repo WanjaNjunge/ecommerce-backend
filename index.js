@@ -21,7 +21,7 @@ dbConnect();
 
 
 app.use(cors({
-    origin: process.env.CORS_ORIGIN, // replace * with specific domain if needed
+    origin: process.env.CLIENT_URL, // replace * with specific domain if needed
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
