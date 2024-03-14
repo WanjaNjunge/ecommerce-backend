@@ -1,3 +1,4 @@
+const cors = require("cors");
 const bodyParser = require("body-parser");
 const express = require("express");
 const dbConnect = require("./config/dbConnect");
@@ -13,19 +14,21 @@ const couponRouter = require("./routes/couponRoute");
 const enqRouter = require("./routes/enqRoute");
 const cookieParser  = require("cookie-parser");
 const morgan = require("morgan");
-const cors = require("cors");
 
 
-dbConnect();
+
+
 
 
 
 app.use(cors({
-    origin: process.env.CLIENT_URL, // replace * with specific domain if needed
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-  }));
+  origin: "https://silicon-savannah.netlify.app", // Set to "*" to allow requests from any origin
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+}));
+dbConnect();
+
 app.use(morgan('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
