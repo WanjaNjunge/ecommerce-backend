@@ -12,6 +12,7 @@ const categoryRouter = require("./routes/categoryRoute");
 const brandRouter = require("./routes/brandRoute");
 const couponRouter = require("./routes/couponRoute");
 const enqRouter = require("./routes/enqRoute");
+const uploadRouter = require("./routes/uploadRoute");
 const cookieParser  = require("cookie-parser");
 const morgan = require("morgan");
 
@@ -22,7 +23,7 @@ const morgan = require("morgan");
 
 
 app.use(cors({
-  origin: "https://silicon-savannah.netlify.app", // Set to "*" to allow requests from any origin
+  origin: "http://localhost:3000",// Set to "*" to allow requests from any origin
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
@@ -39,7 +40,7 @@ app.use("/api/product", productRouter);
 app.use("/api/category", categoryRouter);
 app.use("/api/brand", brandRouter);
 app.use("/api/coupon", couponRouter);
-app.use("/api/upload", productRouter);
+app.use("/api/upload", uploadRouter);
 app.use("/api/enquiry", enqRouter);
 
 

@@ -32,7 +32,6 @@ var productSchema = new mongoose.Schema(
       quantity: {
         type: Number,
         default: 1,
-        required: true,
       },
       sold: {
         type: Number,
@@ -45,10 +44,10 @@ var productSchema = new mongoose.Schema(
         select: false,
       },
       images: [
-        // {
-        //   public_id: String,
-        //   url: String,
-        // },
+        {
+          public_id: String,
+          url: String,
+        },
       ],
       tags: [],
       ratings: [

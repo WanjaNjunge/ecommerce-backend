@@ -469,7 +469,17 @@ const getMyOrders = asyncHandler(async (req, res) => {
     throw new Error(error);
   }
 });
-
+const getAllOrders = asyncHandler(async (req, res) => {
+  try {
+    const alluserorders = await Order.find()
+      .populate("orderItems.product")
+      .populate("user")
+      .exec();
+    res.json(alluserorders);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
   // const emptyCart = asyncHandler(async (req, res) => {
   //   const { _id } = req.user;
   //   validateMongoDbId(_id);
@@ -566,17 +576,7 @@ const getMyOrders = asyncHandler(async (req, res) => {
   //   }
   // });
   
-  // const getAllOrders = asyncHandler(async (req, res) => {
-  //   try {
-  //     const alluserorders = await Order.find()
-  //       .populate("products.product")
-  //       .populate("orderby")
-  //       .exec();
-  //     res.json(alluserorders);
-  //   } catch (error) {
-  //     throw new Error(error);
-  //   }
-  // });
+  
   // const getOrderByUserId = asyncHandler(async (req, res) => {
   //   const { id } = req.params;
   //   validateMongoDbId(id);
@@ -611,4 +611,4 @@ const getMyOrders = asyncHandler(async (req, res) => {
   //   }
   // });
 
-  module.exports = { createUser, loginUser, getAllUsers, getUser, deleteUser, updateUser, blockUser, unblockUser, handleRefreshToken, logout, updatePassword, forgotPasswordToken, resetPassword, loginAdmin, getWishlist, saveAddress, userCart, getUserCart, createOrder, removeProductFromCart, updateCartProductQuantity, getMyOrders, verifyCode }
+  module.exports = { createUser, loginUser, getAllUsers, getUser, deleteUser, updateUser, blockUser, unblockUser, handleRefreshToken, logout, updatePassword, forgotPasswordToken, resetPassword, loginAdmin, getWishlist, saveAddress, userCart, getUserCart, createOrder, removeProductFromCart, updateCartProductQuantity, getMyOrders, getAllOrders, verifyCode }
