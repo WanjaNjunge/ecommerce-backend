@@ -42,7 +42,7 @@ const createUser = asyncHandler(async (req, res) => {
       html: verificationUrl
     });
 
-    res.json({ message: 'Verification code sent' });
+    res.json(newUser);
   } catch (error) {
     throw new Error(error);
   }
@@ -61,6 +61,8 @@ const createUser = asyncHandler(async (req, res) => {
     }else if(user.verificationCode!==code){
       throw new Error('Incorrect Verification Code')
     } else {
+      user.verifiedUser = true;
+      await user.save();
       res.json({ message: 'Verification successful' });
     }
   })
@@ -70,7 +72,7 @@ const loginUser = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
     // check if user exists or not
     const findUser = await User.findOne({ email });
-    if (findUser && (await findUser.isPasswordMatched(password))) {
+    if (findUser && findUser.verifiedUser && (await findUser.isPasswordMatched(password))) {
       const refreshToken = await generateRefreshToken(findUser?.id);
       const updateuser = await User.findByIdAndUpdate(
         findUser.id,

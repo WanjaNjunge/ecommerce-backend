@@ -20,7 +20,11 @@ var userSchema = new mongoose.Schema({
     verificationCode:{
       type: String,
       required:true,
-  },
+    },
+    verifiedUser: { 
+      type: Boolean,
+      default: false 
+    },
     role: {
         type: String,
         default: "user",
