@@ -96,7 +96,7 @@ const loginUser = asyncHandler(async (req, res) => {
       token: generateToken(findUser._id),
     });
   } else {
-    res.status(400).json({ error: "Invalid Credentials or Email not verified" });
+    res.status(400).json({ error: "Invalid Credentials" });
   }
 });
 
@@ -431,6 +431,19 @@ const userCart = asyncHandler(async (req, res) => {
 
   });
 
+  const emptyCart = asyncHandler(async (req, res)=>{
+    const { _id } = req.user;
+    validateMongoDbId(_id);
+  
+    try {
+      const deleteCart = await Cart.deleteMany({ userId: _id })
+      res.json(deleteCart);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get user's cart" });
+    }
+
+  });
+
   const updateCartProductQuantity = asyncHandler(async (req, res)=>{
     const { _id } = req.user;
     const { cartItemId } = req.params;
@@ -619,4 +632,4 @@ const getAllOrders = asyncHandler(async (req, res) => {
   //   }
   // });
 
-  module.exports = { createUser, loginUser, getAllUsers, getUser, deleteUser, updateUser, blockUser, unblockUser, handleRefreshToken, logout, updatePassword, forgotPasswordToken, resetPassword, loginAdmin, getWishlist, saveAddress, userCart, getUserCart, createOrder, removeProductFromCart, updateCartProductQuantity, getMyOrders, getAllOrders, verifyUser }
+  module.exports = { createUser, loginUser, getAllUsers, getUser, deleteUser, updateUser, blockUser, unblockUser, handleRefreshToken, logout, updatePassword, forgotPasswordToken, resetPassword, loginAdmin, getWishlist, saveAddress, userCart, getUserCart, createOrder, removeProductFromCart, updateCartProductQuantity, getMyOrders, getAllOrders, verifyUser, emptyCart }

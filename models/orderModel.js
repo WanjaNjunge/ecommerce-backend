@@ -41,7 +41,10 @@ var orderSchema = new mongoose.Schema(
         type:String,
         required:true
       },
-      other: {
+      ordernotes: {
+        type:String,
+      },
+      apartment: {
         type:String,
       },
     },
