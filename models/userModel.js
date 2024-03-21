@@ -17,13 +17,12 @@ var userSchema = new mongoose.Schema({
         type: String,
         required:true,
     },
-    verificationCode:{
-      type: String,
-      required:true,
-    },
-    verifiedUser: { 
+    isEmailVerified: {
       type: Boolean,
-      default: false 
+      default: false,
+    },
+    verificationCode: {
+      type: String,
     },
     role: {
         type: String,

@@ -14,87 +14,92 @@ const crypto = require("crypto");
 const uniqid = require("uniqid");
 
 
-// Create a User ----------------------------------------------
-
+// Create a User and send verification code
 const createUser = asyncHandler(async (req, res) => {
-  const email = req.body.email;
-  const findUser = await User.findOne({ email: email });
-
-  if (findUser) throw new Error("User Already Exists"); 
+  const { username, email, password } = req.body;
 
   try {
-    const code = Math.random().toString(36).substring(2, 8); // Generate a random code
+    const findUser = await User.findOne({ email });
 
-    const newUser = await User.create({ ...req.body, verificationCode: code });
-    
-    const verificationUrl = `
-    <p>Hi ${newUser.username},</p>
-    <p>Please use the following code to verify your sign up: <strong>${code}</strong>.</p>
-    <p>Please follow this link to input the code for verification: <a href='${process.env.BASE_URL}/verify'>Click Here</a></p>
-    <p>If you don't recognize this activity, please <a href='${process.env.BASE_URL}/forgot-password'>reset your password</a> immediately.</p>
-    `;
+    if (findUser) {
+      return res.status(400).json({ error: "User Account Already Exists" });
+    }
 
+    // Generate a verification code
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-    await sendEmail({
+    // Create a new user with the verification code
+    const newUser = new User({ username, email, password, verificationCode });
+    await newUser.save();
+
+    // Send verification email
+    sendEmail({
       to: email,
-      subject: 'Registration Code',
-      text: `Your registration code is: ${code}`,
-      html: verificationUrl
+      subject: 'Verification Code',
+      text: `Your verification code is: ${verificationCode}`,
+      html: `Your verification code is: <strong>${verificationCode}</strong>`,
     });
 
-    res.json(newUser);
+    res.json({ message: "User created successfully. Check your email for verification code.", data: newUser });
   } catch (error) {
-    throw new Error(error);
+    res.status(500).json({ error: error.message || "Something went wrong" });
   }
-  });
+});
 
 
-  // regisration code verification
-  const  verifyCode = asyncHandler(async (req,res)=>{
-    const { email, code } = req.body;
-    
 
-    const user = await User.findOne({ email: email });
 
-    if(!user){
-      throw new Error('Invalid Email Address');
-    }else if(user.verificationCode!==code){
-      throw new Error('Incorrect Verification Code')
-    } else {
-      user.verifiedUser = true;
-      await user.save();
-      res.json({ message: 'Verification successful' });
+// Verify the user using the verification code
+const verifyUser = asyncHandler (async (req, res) => {
+  const { email, verificationCode } = req.body;
+
+  try {
+    const registeredUser = await User.findOne({ email });
+
+    if (!registeredUser || registeredUser.verificationCode !== verificationCode) {
+      throw new Error("Invalid verification code");
     }
-  })
+
+    registeredUser.isEmailVerified = true;
+    registeredUser.verificationCode = null; // Set verificationCode to null
+    await registeredUser.save();
+
+    res.json({ message: "Email verified successfully. You can now login.", data: registeredUser });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+ 
+
 
 // Login a user
 const loginUser = asyncHandler(async (req, res) => {
-    const { email, password } = req.body;
-    // check if user exists or not
-    const findUser = await User.findOne({ email });
-    if (findUser && findUser.verifiedUser && (await findUser.isPasswordMatched(password))) {
-      const refreshToken = await generateRefreshToken(findUser?.id);
-      const updateuser = await User.findByIdAndUpdate(
-        findUser.id,
-        {
-          refreshToken: refreshToken,
-        },
-        { new: true }
-      );
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        maxAge: 72 * 60 * 60 * 1000,
-      });
-      res.json({
-        _id: findUser?._id,
-        username: findUser?.username,
-        email: findUser?.email,
-        token: generateToken(findUser?._id),
-      });
-    } else {
-      throw new Error("Invalid Credentials");
-    }
-  });
+  const { email, password } = req.body;
+  const findUser = await User.findOne({ email });
+  if (findUser && findUser.isEmailVerified && (await findUser.isPasswordMatched(password))) {
+    const refreshToken = await generateRefreshToken(findUser?._id);
+    const updateuser = await User.findByIdAndUpdate(
+      findUser._id,
+      {
+        refreshToken: refreshToken,
+      },
+      { new: true }
+    );
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      maxAge: 72 * 60 * 60 * 1000,
+    });
+    res.json({
+      _id: findUser._id,
+      username: findUser.username,
+      email: findUser.email,
+      token: generateToken(findUser._id),
+    });
+  } else {
+    res.status(400).json({ error: "Invalid Credentials or Email not verified" });
+  }
+});
+
 
 // admin login
 
@@ -309,7 +314,8 @@ const updatePassword = asyncHandler(async (req, res) => {
   const forgotPasswordToken = asyncHandler(async (req, res) => {
     const { email } = req.body;
     const user = await User.findOne({ email });
-    if (!user) throw new Error("User not found with this email");
+    if (!user) {
+      return res.status(400).json({ error: "Email account does not exist" });}
     try {
       const token = await user.createPasswordResetToken();
       await user.save();
@@ -613,4 +619,4 @@ const getAllOrders = asyncHandler(async (req, res) => {
   //   }
   // });
 
-  module.exports = { createUser, loginUser, getAllUsers, getUser, deleteUser, updateUser, blockUser, unblockUser, handleRefreshToken, logout, updatePassword, forgotPasswordToken, resetPassword, loginAdmin, getWishlist, saveAddress, userCart, getUserCart, createOrder, removeProductFromCart, updateCartProductQuantity, getMyOrders, getAllOrders, verifyCode }
+  module.exports = { createUser, loginUser, getAllUsers, getUser, deleteUser, updateUser, blockUser, unblockUser, handleRefreshToken, logout, updatePassword, forgotPasswordToken, resetPassword, loginAdmin, getWishlist, saveAddress, userCart, getUserCart, createOrder, removeProductFromCart, updateCartProductQuantity, getMyOrders, getAllOrders, verifyUser }
