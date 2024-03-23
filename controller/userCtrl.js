@@ -94,6 +94,7 @@ const loginUser = asyncHandler(async (req, res) => {
       username: findUser.username,
       email: findUser.email,
       token: generateToken(findUser._id),
+      wishlist: findUser.wishlist,
     });
   } else {
     res.status(400).json({ error: "Invalid Credentials" });
