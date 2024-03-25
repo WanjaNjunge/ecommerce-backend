@@ -23,7 +23,7 @@ const morgan = require("morgan");
 
 
 app.use(cors({
-  origin: "http://localhost:3000",// Set to "*" to allow requests from any origin
+  origin: "https://silicon-savannah.netlify.app",// Set to "*" to allow requests from any origin
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
